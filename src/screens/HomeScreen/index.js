@@ -1,7 +1,7 @@
 import React from 'react';
 import {View, Text} from 'react-native';
 
-const index = () => {
+const HomeScreen = () => {
   return (
     <View>
       <Text style={{fontSize: 24, alignSelf: 'center'}}>Home, sweet home</Text>
@@ -9,4 +9,4 @@ const index = () => {
   );
 };
 
-export default index;
+export default HomeScreen;

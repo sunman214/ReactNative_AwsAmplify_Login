@@ -7,6 +7,7 @@ import {
   useWindowDimensions,
   ScrollView,
   TextInput,
+  Alert
 } from 'react-native';
 import Logo from '../../../assets/images/Logo_1.png';
 import CustomInput from '../../components/CustomInput';
@@ -14,21 +15,29 @@ import CustomButton from '../../components/CustomButton';
 import SocialSignInButtons from '../../components/SocialSignInButtons';
 import {useNavigation} from '@react-navigation/native';
 import {useForm, Controller} from 'react-hook-form';
+import {Auth} from 'aws-amplify';
 
 const SignInScreen = () => {
   const {height} = useWindowDimensions();
   const navigation = useNavigation();
+  const [loading, setLoading] = useState(false);
 
-  const {
-    control,
-    handleSubmit,
-    formState: {errors},
-  } = useForm();
+  const {control, handleSubmit, formState: {errors}} = useForm();
 
-  const onSignInPressed = data => {
-    console.log(data);
+  const onSignInPressed = async data => {
+    if (loading) {
+      return;
+    }
+    setLoading(true);
+    try {
+      const response = await Auth.signIn(data.username, data.password);
+      console.log(response);
+      navigation.navigate('Home');
+    } catch (e) {
+      Alert.alert('Oops', e.message);
+    }
+    setLoading(false);
     // validate user
-    navigation.navigate('Home');
   };
 
   const onForgotPasswordPressed = () => {
@@ -64,12 +73,15 @@ const SignInScreen = () => {
             required: 'Password is required',
             minLength: {
               value: 3,
-              message: 'Password should be minimum 3 characters long',
-            },
+              message: 'Password should be minimum 3 characters long'
+            }
           }}
         />
 
-        <CustomButton text="Sign In" onPress={handleSubmit(onSignInPressed)} />
+        <CustomButton
+          text={loading ? 'loading...' : 'Sign In'}
+          onPress={handleSubmit(onSignInPressed)}
+        />
 
         <CustomButton
           text="Forgot password?"
@@ -92,13 +104,13 @@ const SignInScreen = () => {
 const styles = StyleSheet.create({
   root: {
     alignItems: 'center',
-    padding: 20,
+    padding: 20
   },
   logo: {
     width: '70%',
     maxWidth: 300,
-    maxHeight: 200,
-  },
+    maxHeight: 200
+  }
 });
 
 export default SignInScreen;
